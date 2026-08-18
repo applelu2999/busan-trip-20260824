@@ -23,13 +23,13 @@
         extend: {
           colors: {
             nordic: {
-              bg: '#EAF3FA',        // 與圖片底色延伸的柔和粉藍白
+              bg: '#EAF3FA',        // 與插畫底色延伸的柔和粉藍白
               card: '#FFFFFF',      // 卡片純白
               border: '#D7E4EE',    // 柔灰藍邊框
               text: '#2D353C',      // 沉穩炭灰
               sub: '#7B8893',       // 質感淺灰
               accent: '#3E5060',    // 主題灰藍
-              point: '#E67E60'      // 溫暖珊瑚粉橘點綴色
+              point: '#E67E60'      // 溫暖珊瑚粉橘
             }
           },
           fontFamily: {
@@ -69,21 +69,18 @@
 <body class="bg-nordic-bg font-sans antialiased min-h-screen flex justify-center pb-20">
   <div id="app" class="w-full max-w-md bg-nordic-bg min-h-screen shadow-2xl relative flex flex-col pb-16">
     
-    <!-- 頁首 Banner (滿版 250px) -->
+    <!-- 頁首 Banner -->
     <div class="relative h-[250px] w-full overflow-hidden bg-nordic-accent">
-      <!-- 支援你上傳的橫幅圖片 -->
       <img src="banner.png" alt="Travel Banner" onerror="this.src='https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1920&auto=format&fit=crop'" class="w-full h-full object-cover object-left-bottom" />
-      
       <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10"></div>
       
-      <!-- 標題與成員標籤 -->
       <div class="absolute top-6 left-5 text-white drop-shadow">
         <span class="text-[11px] uppercase tracking-widest bg-white/20 backdrop-blur-md px-3 py-0.5 rounded-full border border-white/30">Busan 2026</span>
-        <h1 class="text-2xl font-bold tracking-tight mt-1.5">釜山三人遊 🇰🇷</h1>
+        <h1 class="text-2xl font-bold tracking-tight mt-1.5">釜山五日微旅行 🇰🇷</h1>
         <div class="text-xs text-white/80 mt-0.5 font-light">yoyo · lucy · 飛</div>
       </div>
 
-      <!-- 浮動分頁 Tab 按鈕 (頁首右下角) -->
+      <!-- 浮動分頁 Tab 按鈕 -->
       <div class="absolute bottom-6 right-4 glass-tab p-1.5 rounded-2xl shadow-lg border border-white/80 flex space-x-1.5 z-10">
         <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
           :class="['w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200', 
@@ -93,7 +90,7 @@
       </div>
     </div>
 
-    <!-- 主內容區塊 (負邊距與圓弧銜接) -->
+    <!-- 主內容區塊 -->
     <main class="-mt-6 bg-nordic-bg rounded-t-[30px] px-4 pt-5 pb-10 flex-1 z-0 relative">
       
       <!-- ================= 1. 每日行程表 ================= -->
@@ -125,31 +122,21 @@
           </div>
         </div>
 
-        <!-- 行程清單 (支援拖曳排序) -->
+        <!-- 行程清單 (可拖曳排序) -->
         <div ref="scheduleContainer" class="space-y-4">
           <div v-for="(item, idx) in currentDayPlan.items" :key="item.id" :data-id="item.id" class="schedule-item">
             
-            <!-- 交通轉乘時間計算 -->
+            <!-- 轉乘時間提示 -->
             <div v-if="idx > 0" class="flex items-center justify-center my-3 text-xs text-nordic-sub space-x-3">
               <span class="h-px bg-nordic-border flex-1"></span>
               <div class="flex items-center space-x-1.5 bg-nordic-bg px-2.5 py-0.5 rounded-full border border-nordic-border">
                 <i :class="getTransitIcon(item.transitMode)"></i>
-                <span>約 {{ item.transitTime || '20' }} 分鐘</span>
+                <span>約 {{ item.transitTime || '15' }} 分鐘</span>
               </div>
               <span class="h-px bg-nordic-border flex-1"></span>
             </div>
 
-            <!-- 第一個行程的前置飯店出發提示 -->
-            <div v-else-if="idx === 0 && selectedDayIndex > 0" class="flex items-center justify-center mb-3 text-xs text-nordic-sub space-x-3">
-              <span class="h-px bg-nordic-border flex-1"></span>
-              <div class="flex items-center space-x-1 bg-nordic-bg px-2.5 py-0.5 rounded-full border border-nordic-border">
-                <i class="fa-solid fa-hotel text-[10px]"></i>
-                <span>從飯店出發 · 約 20 分鐘</span>
-              </div>
-              <span class="h-px bg-nordic-border flex-1"></span>
-            </div>
-
-            <!-- 專用卡片：航班卡片 (首日首項) -->
+            <!-- 專用航班卡片 (首日出發) -->
             <div v-if="item.type === 'flight'" class="bg-gradient-to-br from-nordic-accent to-slate-800 text-white p-4 rounded-2xl shadow-sm relative overflow-hidden">
               <div class="flex justify-between items-center pb-3 border-b border-white/10">
                 <span class="text-xs font-semibold tracking-wider text-amber-300">{{ item.flightNumber }}</span>
@@ -179,18 +166,26 @@
               </div>
             </div>
 
-            <!-- 一般行程卡片 -->
+            <!-- 一般行程 / 美食卡片 -->
             <div v-else class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs hover:border-nordic-sub/50 transition-all flex flex-col justify-between relative">
               <div class="flex items-start justify-between">
                 <div class="flex items-start space-x-2.5">
-                  <span :class="['w-7 h-7 rounded-xl flex items-center justify-center text-xs mt-0.5 font-bold', getCategoryStyle(item.category)]">
+                  <!-- 自訂方塊顏色 (行程 vs 美食 vs 其他) -->
+                  <span :class="['w-7 h-7 rounded-xl flex items-center justify-center text-xs mt-0.5 font-bold shrink-0', getColorBadgeClass(item.colorTheme)]">
                     <i :class="getCategoryIcon(item.category)"></i>
                   </span>
                   <div>
-                    <h3 class="font-bold text-nordic-text leading-snug">{{ item.name }}</h3>
+                    <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <h3 class="font-bold text-nordic-text leading-snug">{{ item.name }}</h3>
+                      <!-- Busan Pass 專屬徽章 -->
+                      <span v-if="item.useBusanPass" class="bg-gradient-to-r from-red-500 to-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                        <i class="fa-solid fa-ticket mr-0.5"></i> {{ item.passType || 'Busan Pass' }}
+                      </span>
+                    </div>
+
                     <div class="text-xs text-nordic-sub mt-1 space-x-2">
                       <span v-if="item.hours"><i class="fa-regular fa-clock mr-1"></i>{{ item.hours }}</span>
-                      <span v-if="item.ticket"><i class="fa-solid fa-ticket mr-1"></i>{{ item.ticket }}</span>
+                      <span v-if="item.ticket"><i class="fa-solid fa-won-sign mr-1"></i>{{ item.ticket }}</span>
                     </div>
                   </div>
                 </div>
@@ -200,12 +195,30 @@
                 </button>
               </div>
 
+              <!-- 子分層小店清單 (區域集合逛街) -->
+              <div v-if="item.subStores && item.subStores.length > 0" class="mt-3 bg-nordic-bg/70 rounded-xl p-2.5 border border-nordic-border space-y-1.5">
+                <div class="text-[11px] font-bold text-nordic-sub flex justify-between items-center">
+                  <span><i class="fa-solid fa-shop mr-1"></i>區域推薦/待逛小店</span>
+                  <span class="text-[10px] text-nordic-point">已按動線排序</span>
+                </div>
+                <div v-for="store in item.subStores" :key="store.name" class="flex items-center justify-between text-xs py-1 px-1.5 bg-nordic-card rounded-lg border border-nordic-border/50">
+                  <div class="flex items-center space-x-1.5 truncate pr-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-nordic-point"></span>
+                    <span class="font-medium text-nordic-text truncate">{{ store.name }}</span>
+                    <span v-if="store.tag" class="text-[9px] bg-nordic-bg px-1 rounded text-nordic-sub">{{ store.tag }}</span>
+                  </div>
+                  <button @click="openGoogleMaps(store.name)" class="text-nordic-sub hover:text-nordic-point text-[11px] shrink-0">
+                    <i class="fa-solid fa-location-arrow"></i>
+                  </button>
+                </div>
+              </div>
+
               <!-- 特色與備註 -->
               <p v-if="item.notes" class="text-xs text-nordic-sub bg-nordic-bg p-2.5 rounded-xl mt-3 leading-relaxed">
                 {{ item.notes }}
               </p>
 
-              <!-- 導航與拖曳 -->
+              <!-- 導航與快速操作 -->
               <div class="mt-3.5 pt-2.5 border-t border-nordic-border flex justify-between items-center text-xs">
                 <span class="text-nordic-sub text-[11px]"><i class="fa-solid fa-bars mr-1.5 cursor-grab"></i>拖曳排序</span>
                 <button @click="openGoogleMaps(item.name)" class="font-medium text-nordic-text flex items-center space-x-1 hover:text-nordic-point">
@@ -224,7 +237,7 @@
         </button>
       </section>
 
-      <!-- ================= 2. 資訊頁 (匯率、航班、住宿、緊急) ================= -->
+      <!-- ================= 2. 資訊頁 (匯率、入境規定、釜山 Pass、航班、住宿) ================= -->
       <section v-if="currentTab === 'info'" class="space-y-4">
         
         <!-- 匯率即時換算 -->
@@ -248,11 +261,58 @@
           <p class="text-[10px] text-nordic-sub mt-2 text-right">以匯率 1 KRW ≈ 0.024 TWD 計算</p>
         </div>
 
+        <!-- 釜山 Pass 兌換資訊 -->
+        <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
+          <div class="flex items-center space-x-2 mb-2">
+            <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-ticket"></i>
+            </span>
+            <h3 class="font-bold text-sm text-nordic-text">釜山 PASS 兌換地點</h3>
+          </div>
+          <div class="bg-nordic-bg rounded-xl p-3 text-xs text-nordic-sub space-y-1.5 leading-relaxed">
+            <div class="font-bold text-nordic-text">金海機場 (國際線) – WiFi Dosirak</div>
+            <div>📍 國際線 1 樓 3 號出口</div>
+            <div class="text-[11px] text-nordic-sub/80">부산광역시 강서구 공항진입路 108, 김해국제공항 1층 3번 출구</div>
+            <div class="text-[11px] font-medium text-nordic-point pt-1 border-t border-nordic-border">
+              <i class="fa-regular fa-clock mr-1"></i>全年無休 / 每日 06:00 - 10:00, 17:00 – 21:30
+            </div>
+          </div>
+        </div>
+
+        <!-- 入境規定指南 -->
+        <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
+          <div class="flex items-center space-x-2 mb-3">
+            <i class="fa-solid fa-passport text-nordic-point"></i>
+            <h3 class="font-bold text-sm text-nordic-text">韓國入境必備規定</h3>
+          </div>
+
+          <!-- 電子入境卡 -->
+          <div class="bg-nordic-bg rounded-xl p-3 mb-2.5 text-xs text-nordic-sub space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-nordic-text">1. 電子入境卡 e-Arrival Card</span>
+              <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">抵達前 72h</span>
+            </div>
+            <p>抵達韓國前 72 小時內線上填寫完畢。</p>
+            <a href="https://www.e-arrivalcard.go.kr" target="_blank" class="inline-flex items-center text-nordic-point font-semibold hover:underline pt-0.5">
+              前往電子入境卡官網 <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
+            </a>
+          </div>
+
+          <!-- SeS 自動通關 -->
+          <div class="bg-nordic-bg rounded-xl p-3 text-xs text-nordic-sub space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-nordic-text">2. SeS 自動通關申辦</span>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">免費效期 5 年</span>
+            </div>
+            <p class="leading-relaxed">滿 17 歲持有中華民國晶片護照，於金海機場 SeS 註冊中心現場抽號、採集指紋與臉部照片，即可在護照貼專屬貼紙快速通關。</p>
+          </div>
+        </div>
+
         <!-- 航班資訊 -->
         <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
           <div class="flex items-center space-x-2 mb-3">
             <i class="fa-solid fa-plane-departure text-nordic-point"></i>
-            <h3 class="font-bold text-sm text-nordic-text">航班資訊</h3>
+            <h3 class="font-bold text-sm text-nordic-text">航班詳細時間</h3>
           </div>
 
           <!-- 去程 -->
@@ -287,7 +347,7 @@
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center space-x-2">
               <i class="fa-solid fa-hotel text-nordic-point"></i>
-              <h3 class="font-bold text-sm text-nordic-text">住宿資訊</h3>
+              <h3 class="font-bold text-sm text-nordic-text">住宿飯店</h3>
             </div>
             <span class="text-[11px] bg-nordic-bg border border-nordic-border px-2 py-0.5 rounded-full text-nordic-sub">4 晚連住</span>
           </div>
@@ -301,7 +361,7 @@
           </div>
         </div>
 
-        <!-- 緊急醫療 -->
+        <!-- 緊急求助 -->
         <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
           <div class="flex items-center space-x-2 mb-3">
             <i class="fa-solid fa-shield-heart text-red-400"></i>
@@ -321,10 +381,9 @@
 
       </section>
 
-      <!-- ================= 3. 購物清單 (支援商店分類過濾) ================= -->
+      <!-- ================= 3. 購物清單 (商店分類標籤) ================= -->
       <section v-if="currentTab === 'shopping'" class="space-y-4">
         
-        <!-- 商店分類快速切換 -->
         <div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-1">
           <button v-for="tag in shopCategories" :key="tag" @click="activeShopCategory = tag"
             :class="['px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border',
@@ -335,7 +394,6 @@
           </button>
         </div>
 
-        <!-- 購物網格 -->
         <div class="grid grid-cols-2 gap-3">
           <div v-for="item in filteredShoppingList" :key="item.id" class="bg-nordic-card rounded-2xl overflow-hidden border border-nordic-border shadow-xs flex flex-col justify-between">
             <div class="w-full h-32 bg-nordic-bg overflow-hidden relative">
@@ -354,20 +412,14 @@
           </div>
         </div>
 
-        <div v-if="filteredShoppingList.length === 0" class="text-center py-16 text-nordic-sub text-xs">
-          目前該分類下沒有商品，點擊「+」新增想要採買的好物！
-        </div>
-
-        <!-- 浮動新增按鈕 -->
         <button @click="openAddShoppingModal" class="fixed bottom-6 right-6 w-13 h-13 bg-nordic-text text-white rounded-full shadow-xl flex items-center justify-center text-xl z-20">
           <i class="fa-solid fa-plus"></i>
         </button>
       </section>
 
-      <!-- ================= 4. 花費記帳 & 三人結算 (yoyo / lucy / 飛) ================= -->
+      <!-- ================= 4. 花費記帳 & 三人分帳 (yoyo / lucy / 飛) ================= -->
       <section v-if="currentTab === 'expenses'" class="space-y-4">
         
-        <!-- 總花費看板 -->
         <div class="bg-nordic-text text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
           <div class="text-xs text-white/60 uppercase tracking-wider">三人總支出合計</div>
           <div class="text-2xl font-bold mt-1">
@@ -378,16 +430,13 @@
           </div>
         </div>
 
-        <!-- 智慧結算功能看板 -->
+        <!-- 結算建議看板 -->
         <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center space-x-2">
-              <i class="fa-solid fa-hand-holding-dollar text-nordic-point"></i>
-              <h3 class="font-bold text-sm text-nordic-text">旅程結束結算 (誰給誰多少錢)</h3>
-            </div>
+          <div class="flex items-center space-x-2 mb-3">
+            <i class="fa-solid fa-hand-holding-dollar text-nordic-point"></i>
+            <h3 class="font-bold text-sm text-nordic-text">旅程結束結算 (誰給誰多少錢)</h3>
           </div>
 
-          <!-- 各人墊付與應付統計 -->
           <div class="grid grid-cols-3 gap-2 mb-3 text-center">
             <div v-for="person in members" :key="person" class="bg-nordic-bg p-2 rounded-xl border border-nordic-border">
               <div class="text-xs font-bold text-nordic-text">{{ person }}</div>
@@ -396,7 +445,6 @@
             </div>
           </div>
 
-          <!-- 結算轉帳方案 -->
           <div class="bg-nordic-bg/60 rounded-xl p-3 border border-nordic-border space-y-2">
             <div class="text-[11px] font-bold text-nordic-sub mb-1">最精簡還款建議：</div>
             <div v-if="settlementDebts.length === 0" class="text-xs text-emerald-600 font-medium">
@@ -416,7 +464,7 @@
           </div>
         </div>
 
-        <!-- 花費明細列表 -->
+        <!-- 消費清單 -->
         <div class="space-y-2.5">
           <div class="text-xs font-bold text-nordic-sub px-1">消費明細列表</div>
           <div v-for="expense in expenseList" :key="expense.id" class="bg-nordic-card p-3.5 rounded-2xl border border-nordic-border shadow-xs flex flex-col justify-between">
@@ -438,7 +486,6 @@
               </div>
             </div>
 
-            <!-- 付款人與平攤人顯示 -->
             <div class="mt-2.5 pt-2 border-t border-nordic-border flex justify-between items-center text-[11px] text-nordic-sub">
               <div><span class="font-semibold text-nordic-text">{{ expense.payer }}</span> 先付</div>
               <div>分攤：{{ expense.sharedWith.join(', ') }} (共 {{ expense.sharedWith.length }} 人)</div>
@@ -446,7 +493,6 @@
           </div>
         </div>
 
-        <!-- 浮動新增按鈕 -->
         <button @click="openAddExpenseModal" class="fixed bottom-6 right-6 w-13 h-13 bg-nordic-text text-white rounded-full shadow-xl flex items-center justify-center text-xl z-20">
           <i class="fa-solid fa-plus"></i>
         </button>
@@ -456,53 +502,103 @@
 
     <!-- ================= 彈出視窗：新增/編輯行程 ================= -->
     <div v-if="showScheduleModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end justify-center z-50 p-0 sm:p-4">
-      <div class="bg-nordic-card w-full max-w-md rounded-t-[28px] sm:rounded-[28px] p-5 max-h-[85vh] overflow-y-auto space-y-3.5 animate-slide-up">
+      <div class="bg-nordic-card w-full max-w-md rounded-t-[28px] sm:rounded-[28px] p-5 max-h-[90vh] overflow-y-auto space-y-3.5 animate-slide-up">
         <div class="flex justify-between items-center pb-2 border-b border-nordic-border">
           <h3 class="font-bold text-base text-nordic-text">{{ isEditingSchedule ? '編輯行程' : '新增行程' }}</h3>
           <button @click="showScheduleModal = false" class="text-nordic-sub"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
+        <!-- 方塊顏色主題選擇 (行程 vs 美食 vs 購物 vs 住宿) -->
         <div>
-          <label class="text-xs text-nordic-sub">分類</label>
-          <select v-model="scheduleForm.category" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm">
-            <option value="景點">景點</option>
-            <option value="住宿">住宿</option>
-            <option value="美食">美食</option>
-            <option value="購物">購物</option>
-            <option value="航班">航班</option>
-            <option value="其他">其他</option>
-          </select>
+          <label class="text-xs font-bold text-nordic-sub block mb-1">標籤與方塊顏色風格</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button v-for="c in colorOptions" :key="c.id" type="button" @click="scheduleForm.colorTheme = c.id"
+              :class="['py-2 px-1 rounded-xl text-xs font-bold border transition-all text-center',
+                       scheduleForm.colorTheme === c.id ? 'border-nordic-text shadow-sm ' + c.activeClass : 'border-nordic-border ' + c.bgClass]">
+              {{ c.label }}
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label class="text-xs text-nordic-sub">名稱</label>
-          <input v-model="scheduleForm.name" type="text" placeholder="例：海雲台藍線公園" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+        <!-- Busan Pass 標註勾選 -->
+        <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3">
+          <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" v-model="scheduleForm.useBusanPass" class="w-4 h-4 text-rose-600 rounded" />
+            <span class="text-xs font-bold text-rose-800">使用釜山 PASS (Busan Pass)</span>
+          </label>
+          <div v-if="scheduleForm.useBusanPass" class="mt-2">
+            <input v-model="scheduleForm.passType" type="text" placeholder="例：Big 3 / 24hr 開卡" class="w-full bg-white border border-rose-200 rounded-xl px-3 py-1.5 text-xs" />
+          </div>
+        </div>
+
+        <!-- Google Maps 連結智慧解析區域 -->
+        <div class="bg-nordic-bg p-3 rounded-2xl border border-nordic-border space-y-1.5">
+          <label class="text-xs font-bold text-nordic-text flex items-center justify-between">
+            <span><i class="fa-brands fa-google text-blue-500 mr-1"></i>貼上 Google Maps 網址 / 店名自動識別</span>
+          </label>
+          <div class="flex space-x-1.5">
+            <input v-model="mapUrlInput" type="text" placeholder="貼上店家名稱或 Google Maps 連結..." class="flex-1 bg-white border border-nordic-border rounded-xl px-3 py-2 text-xs focus:outline-none" />
+            <button @click="autoDetectAreaFromMap" type="button" class="bg-nordic-text text-white px-3 py-2 rounded-xl text-xs font-bold shrink-0">
+              辨識區域
+            </button>
+          </div>
+          <p v-if="detectedAreaHint" class="text-[10px] text-nordic-point font-semibold">{{ detectedAreaHint }}</p>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-xs text-nordic-sub">營業時間</label>
-            <input v-model="scheduleForm.hours" type="text" placeholder="09:00 - 18:00" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+            <label class="text-xs text-nordic-sub">分類</label>
+            <select v-model="scheduleForm.category" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
+              <option value="景點">景點</option>
+              <option value="美食">美食</option>
+              <option value="住宿">住宿</option>
+              <option value="購物">購物</option>
+              <option value="交通/航班">交通/航班</option>
+              <option value="其他">其他</option>
+            </select>
           </div>
           <div>
-            <label class="text-xs text-nordic-sub">門票費用</label>
-            <input v-model="scheduleForm.ticket" type="text" placeholder="₩ 15,000" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+            <label class="text-xs text-nordic-sub">所屬區域 / 母行程</label>
+            <select v-model="scheduleForm.parentArea" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
+              <option value="">獨立大行程</option>
+              <option value="廣安里">廣安里</option>
+              <option value="南浦洞/札嘎其">南浦洞/札嘎其</option>
+              <option value="海雲台">海雲台</option>
+              <option value="西面">西面</option>
+              <option value="甘川洞/影島">甘川洞/影島</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-nordic-sub">行程 / 店家名稱</label>
+          <input v-model="scheduleForm.name" type="text" placeholder="例：西面 poset 文具店" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-nordic-sub">營業時間 / 預約時間</label>
+            <input v-model="scheduleForm.hours" type="text" placeholder="09:00 - 18:00" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
+          </div>
+          <div>
+            <label class="text-xs text-nordic-sub">費用 / 門票</label>
+            <input v-model="scheduleForm.ticket" type="text" placeholder="免費 / ₩ 15,000" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
           </div>
         </div>
 
         <div>
           <label class="text-xs text-nordic-sub">特色 & 備註</label>
-          <textarea v-model="scheduleForm.notes" rows="2" placeholder="膠囊小火車需先預訂..." class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm"></textarea>
+          <textarea v-model="scheduleForm.notes" rows="2" placeholder="備註或交通提醒..." class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs"></textarea>
         </div>
 
         <div class="flex space-x-2 pt-2">
-          <button v-if="isEditingSchedule" @click="confirmDeleteSchedule" class="w-1/3 bg-red-50 text-red-500 font-bold py-3 rounded-xl text-sm">刪除</button>
-          <button @click="saveScheduleItem" class="flex-1 bg-nordic-text text-white font-bold py-3 rounded-xl text-sm">儲存行程</button>
+          <button v-if="isEditingSchedule" @click="confirmDeleteSchedule" class="w-1/3 bg-red-50 text-red-500 font-bold py-3 rounded-xl text-xs">刪除</button>
+          <button @click="saveScheduleItem" class="flex-1 bg-nordic-text text-white font-bold py-3 rounded-xl text-xs">儲存行程</button>
         </div>
       </div>
     </div>
 
-    <!-- ================= 彈出視窗：新增購物清單 (含分類) ================= -->
+    <!-- ================= 彈出視窗：購物清單 ================= -->
     <div v-if="showShoppingModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end justify-center z-50 p-0 sm:p-4">
       <div class="bg-nordic-card w-full max-w-md rounded-t-[28px] p-5 space-y-3 animate-slide-up">
         <div class="flex justify-between items-center pb-2 border-b border-nordic-border">
@@ -511,7 +607,7 @@
         </div>
         <div>
           <label class="text-xs text-nordic-sub">購買地點 / 店家分類</label>
-          <select v-model="shoppingForm.store" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm">
+          <select v-model="shoppingForm.store" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
             <option value="大創">大創 (Daiso)</option>
             <option value="Olive Young">Olive Young</option>
             <option value="超商/超市">超商 / 超市 (CU/GS25/樂天)</option>
@@ -521,7 +617,7 @@
         </div>
         <div>
           <label class="text-xs text-nordic-sub">商品名稱</label>
-          <input v-model="shoppingForm.name" type="text" placeholder="例：VT 積雪草微針精華" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+          <input v-model="shoppingForm.name" type="text" placeholder="例：Tamburins 護手霜" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
         </div>
         <div>
           <label class="text-xs text-nordic-sub">上傳照片</label>
@@ -529,13 +625,13 @@
         </div>
         <div>
           <label class="text-xs text-nordic-sub">備註</label>
-          <input v-model="shoppingForm.notes" type="text" placeholder="大創必買 / 100號" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+          <input v-model="shoppingForm.notes" type="text" placeholder="色號 / 規格 / 必買" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
         </div>
-        <button @click="saveShoppingItem" class="w-full bg-nordic-text text-white font-bold py-3 rounded-xl text-sm mt-2">加入清單</button>
+        <button @click="saveShoppingItem" class="w-full bg-nordic-text text-white font-bold py-3 rounded-xl text-xs mt-2">加入清單</button>
       </div>
     </div>
 
-    <!-- ================= 彈出視窗：新增花費 (含付款人與平攤勾選) ================= -->
+    <!-- ================= 彈出視窗：新增花費 ================= -->
     <div v-if="showExpenseModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end justify-center z-50 p-0 sm:p-4">
       <div class="bg-nordic-card w-full max-w-md rounded-t-[28px] p-5 space-y-3.5 max-h-[85vh] overflow-y-auto animate-slide-up">
         <div class="flex justify-between items-center pb-2 border-b border-nordic-border">
@@ -543,7 +639,6 @@
           <button @click="showExpenseModal = false" class="text-nordic-sub"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- 誰先付的 -->
         <div>
           <label class="text-xs font-bold text-nordic-sub block mb-1">誰先付錢？(付款人)</label>
           <div class="grid grid-cols-3 gap-2">
@@ -555,7 +650,6 @@
           </div>
         </div>
 
-        <!-- 誰要平攤這筆錢 -->
         <div>
           <label class="text-xs font-bold text-nordic-sub block mb-1">誰要平攤這筆錢？(可多選)</label>
           <div class="grid grid-cols-3 gap-2">
@@ -571,7 +665,7 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs text-nordic-sub">消費類別</label>
-            <select v-model="expenseForm.category" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm">
+            <select v-model="expenseForm.category" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
               <option value="飲食">飲食</option>
               <option value="交通">交通</option>
               <option value="住宿">住宿</option>
@@ -582,7 +676,7 @@
           </div>
           <div>
             <label class="text-xs text-nordic-sub">付款方式</label>
-            <select v-model="expenseForm.payMethod" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm">
+            <select v-model="expenseForm.payMethod" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
               <option value="信用卡">信用卡</option>
               <option value="現金">現金</option>
             </select>
@@ -591,21 +685,21 @@
 
         <div>
           <label class="text-xs text-nordic-sub">項目名稱</label>
-          <input v-model="expenseForm.name" type="text" placeholder="例：伍班長烤肉晚餐" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+          <input v-model="expenseForm.name" type="text" placeholder="例：烤肉的男子 晚餐" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs text-nordic-sub">金額 (KRW / 韓元)</label>
-            <input v-model.number="expenseForm.amount" type="number" placeholder="60000" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+            <input v-model.number="expenseForm.amount" type="number" placeholder="60000" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
           </div>
           <div>
             <label class="text-xs text-nordic-sub">日期</label>
-            <input v-model="expenseForm.date" type="date" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-sm" />
+            <input v-model="expenseForm.date" type="date" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
           </div>
         </div>
 
-        <button @click="saveExpenseItem" class="w-full bg-nordic-text text-white font-bold py-3 rounded-xl text-sm mt-2">記錄花費</button>
+        <button @click="saveExpenseItem" class="w-full bg-nordic-text text-white font-bold py-3 rounded-xl text-xs mt-2">記錄花費</button>
       </div>
     </div>
 
@@ -636,13 +730,21 @@
           { weekDay: 'FRI', dayNum: '8/28' }
         ]);
 
-        // 行程資料
-        const itineraryData = ref([
+        // 色彩風格選單
+        const colorOptions = [
+          { id: 'spot', label: '景點 (琥珀)', bgClass: 'bg-amber-50 text-amber-800', activeClass: 'bg-amber-100 text-amber-900 border-amber-400' },
+          { id: 'food', label: '美食 (珊瑚橘)', bgClass: 'bg-orange-50 text-orange-800', activeClass: 'bg-orange-100 text-orange-900 border-orange-400' },
+          { id: 'shop', label: '購物 (玫瑰粉)', bgClass: 'bg-rose-50 text-rose-800', activeClass: 'bg-rose-100 text-rose-900 border-rose-400' },
+          { id: 'stay', label: '住宿/其他', bgClass: 'bg-slate-100 text-slate-700', activeClass: 'bg-slate-200 text-slate-900 border-slate-400' }
+        ];
+
+        // 完整五天行程
+        const defaultItinerary = [
           {
             dayIndex: 0,
             items: [
               {
-                id: '101',
+                id: 'd1_1',
                 type: 'flight',
                 flightNumber: 'LJ752 · 台北 - 釜山',
                 fromCode: 'TPE',
@@ -650,44 +752,439 @@
                 toCode: 'PUS',
                 arrTime: '06:15',
                 duration: '3h 35m',
-                notes: '抵達後出關前往市區',
+                notes: '07:15 離開金海機場，先領取 Busan Pass 與 WiFi 機。',
                 toLocation: '金海國際機場'
               },
               {
-                id: '102',
+                id: 'd1_2',
                 type: 'standard',
+                colorTheme: 'stay',
                 category: '住宿',
-                name: 'Ramada Encore Haeundae',
-                hours: '15:00 Check-in',
+                name: 'Ramada Encore Haeundae 寄放行李',
+                hours: '08:15 抵達',
                 ticket: '',
                 transitMode: 'car',
-                transitTime: '45',
-                notes: '先將行李寄放在飯店櫃台。'
+                transitTime: '60',
+                notes: '8:15 抵達飯店寄放大件行李。'
               },
               {
-                id: '103',
+                id: 'd1_3',
                 type: 'standard',
+                colorTheme: 'spot',
                 category: '景點',
-                name: '海雲台海水浴場 & 藍線公園',
-                hours: '09:30 - 19:00',
-                ticket: '₩ 30,000',
+                name: 'Hill Spa 汗蒸幕',
+                hours: '早晨放鬆',
+                ticket: '免費兌換',
+                useBusanPass: true,
+                passType: 'Busan Pass Big 3 (使用 #1)',
+                transitMode: 'car',
+                transitTime: '15',
+                notes: '享受海景溫泉與汗蒸放鬆紅眼班機疲憊。'
+              },
+              {
+                id: 'd1_4',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: '水邊最高豬肉湯飯 (廣安里店)',
+                hours: '午餐時段',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '25',
+                notes: '廣安里必吃超人氣濃郁豬肉湯飯。'
+              },
+              {
+                id: 'd1_5',
+                type: 'standard',
+                colorTheme: 'stay',
+                category: '住宿',
+                name: '飯店辦理入住 (Check-in)',
+                hours: '15:00',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '20',
+                notes: '回海雲台飯店辦理入住放隨身行李。'
+              },
+              {
+                id: 'd1_6',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '廣安里沙灘散策 & Olive Young',
+                hours: '15:30 起',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '20',
+                subStores: [
+                  { name: '廣安沙灘 (Gwangalli Beach)', tag: '海景散步' },
+                  { name: 'Olive Young 廣安里店', tag: '美妝採買' }
+                ],
+                notes: '欣賞廣安大橋海景與沿街美妝補貨。'
+              },
+              {
+                id: 'd1_7',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: '烤肉的男子 (맛찬들 왕소금구이)',
+                hours: '晚餐時段',
+                ticket: '',
                 transitMode: 'walk',
                 transitTime: '10',
-                notes: '搭乘天空膠囊列車欣賞海景。'
+                notes: '釜山必吃厚切專人代烤豬五花。'
+              },
+              {
+                id: 'd1_8',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: 'CU 便利商店 採買宵夜',
+                hours: '宵夜',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '5',
+                notes: '買韓國零食、香蕉牛奶與宵夜點心。'
               }
             ]
           },
-          { dayIndex: 1, items: [] },
-          { dayIndex: 2, items: [] },
-          { dayIndex: 3, items: [] },
-          { dayIndex: 4, items: [] }
-        ]);
+          {
+            dayIndex: 1,
+            items: [
+              {
+                id: 'd2_1',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: 'Mega Coffee (飯店附近)',
+                hours: '早餐時段',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '5',
+                notes: '買大容量平價咖啡開啟南浦洞行程。'
+              },
+              {
+                id: 'd2_2',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '南浦洞商圈 & 札嘎其市場',
+                hours: '上午 - 下午',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '40',
+                subStores: [
+                  { name: '札嘎其市場 1969 刀削麵', tag: '午餐' },
+                  { name: '南浦洞 BIFF 地下街', tag: '逛街' },
+                  { name: '樂天超市 (光復店)', tag: '零食伴手禮' }
+                ],
+                notes: '搭車前往南浦晃街，吃道地刀削麵與樂天大採購。'
+              },
+              {
+                id: 'd2_3',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '海雲台/廣安里 遊艇夜景體驗',
+                hours: '20:30 (需提早到場)',
+                ticket: '已預約完成',
+                useBusanPass: true,
+                passType: 'Busan Pass Big 3 (使用 #2)',
+                transitMode: 'car',
+                transitTime: '35',
+                notes: '已預約 20:30 班次，出海近距離看廣安大橋燈光秀與煙火。'
+              }
+            ]
+          },
+          {
+            dayIndex: 2,
+            items: [
+              {
+                id: 'd3_1',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '海雲台海灘 & 傳統市場',
+                hours: '早晨 - 午餐',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '10',
+                notes: '早晨海灘散步，午餐在海雲台傳統市場吃盲鰻、辣炒年糕小吃。'
+              },
+              {
+                id: 'd3_2',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: 'Skyline Luge 釜山斜坡滑車',
+                hours: '13:00 抵達',
+                ticket: '開卡兌換',
+                useBusanPass: true,
+                passType: 'Busan Pass 24hr (開卡計時開始)',
+                transitMode: 'car',
+                transitTime: '20',
+                notes: '刺激好玩斜坡滑車，由此正式開卡啟用 24hr 通票！'
+              },
+              {
+                id: 'd3_3',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '交通/航班',
+                name: '松亭站 兌換藍線公園海岸列車通票',
+                hours: '14:30',
+                ticket: 'Pass 免費兌換',
+                useBusanPass: true,
+                passType: 'Busan Pass 24hr 免費兌換',
+                transitMode: 'car',
+                transitTime: '15',
+                notes: '換票規則：需至松亭人工櫃檯換全站通票（限當日）。每站最多上車一次，下車次數不限。'
+              },
+              {
+                id: 'd3_4',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: 'Busan X the SKY 觀景台',
+                hours: '16:45',
+                ticket: 'Pass 免費入場',
+                useBusanPass: true,
+                passType: 'Busan Pass 24hr 免費入場',
+                transitMode: 'car',
+                transitTime: '15',
+                notes: '登上 100 樓俯瞰海雲台全景，並在全世界最高星巴克喝下午茶。'
+              },
+              {
+                id: 'd3_5',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '天空膠囊列車 (尾浦 ➔ 青沙浦)',
+                hours: '18:30 (已預約)',
+                ticket: '官網預約券',
+                transitMode: 'walk',
+                transitTime: '5',
+                notes: '欣賞最美夕陽海景，沿著海岸線緩慢前行。'
+              },
+              {
+                id: 'd3_6',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: 'Liberta (青沙浦海景餐廳)',
+                hours: '晚餐時段',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '5',
+                notes: '在青沙浦一邊看海景一邊享用精緻晚餐。'
+              },
+              {
+                id: 'd3_7',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '海岸列車 (青沙浦 ➔ 尾浦) & Spa Land 汗蒸幕',
+                hours: '夜間放鬆',
+                ticket: 'Pass 免費',
+                useBusanPass: true,
+                passType: 'Busan Pass 24hr (新世界 Spa Land)',
+                transitMode: 'car',
+                transitTime: '20',
+                notes: '搭海岸列車回尾浦後，前往 Centum City Spa Land 享受五星級汗蒸幕。'
+              }
+            ]
+          },
+          {
+            dayIndex: 3,
+            items: [
+              {
+                id: 'd4_1',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: 'Egg Drop (海雲台早餐)',
+                hours: '08:00',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '5',
+                notes: '人氣現烤爆漿厚切吐司。'
+              },
+              {
+                id: 'd4_2',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '松島海上纜車 & 松島龍宮雲橋',
+                hours: '09:00',
+                ticket: 'Pass 兌換',
+                useBusanPass: true,
+                passType: 'Busan Pass 24hr (最後壓線兌換)',
+                transitMode: 'car',
+                transitTime: '35',
+                notes: '搭乘透明水晶纜車跨海，漫步龍宮雲橋俯瞰壯麗海崖。'
+              },
+              {
+                id: 'd4_3',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '龍頭山公園 釜山塔 (Busan Tower)',
+                hours: '11:30',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '15',
+                notes: '登塔遠眺釜山市區港口風景。'
+              },
+              {
+                id: 'd4_4',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '甘川洞文化村 & 手翻相冊 Flipbook Studio',
+                hours: '12:00 - 14:00',
+                ticket: '免費拍照/紀念',
+                transitMode: 'car',
+                transitTime: '15',
+                subStores: [
+                  { name: 'Flipbook Studio (手翻相冊館)', tag: '紀念拍照' },
+                  { name: '小王子與沙漠狐狸拍照點', tag: '地標打卡' },
+                  { name: '甘川洞文創小店群', tag: '逛街小物' }
+                ],
+                notes: '彩繪山城漫遊、拍照打卡與製作手翻動畫書。'
+              },
+              {
+                id: 'd4_5',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '白淺灘文化村 & 影島海女村',
+                hours: '下午時段',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '20',
+                subStores: [
+                  { name: '影島海女村 (營業至 18:00)', tag: '海鮮拉麵/海膽' },
+                  { name: 'Burger Go (備選美式漢堡)', tag: '美食備選' },
+                  { name: '白淺灘沿海絕美咖啡廳', tag: '海景下午茶' }
+                ],
+                notes: '臨海純白小希臘，沿著絕美海景步道品嚐新鮮海鮮。'
+              },
+              {
+                id: 'd4_6',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: 'ARTE Museum 釜山光影美術館',
+                hours: '至 20:00 (最晚 19:00 入場)',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '10',
+                notes: '沉浸式自然沉浸數位光影藝術展。'
+              },
+              {
+                id: 'd4_7',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '景點',
+                name: '荒嶺山烽火台 (絕美百萬夜景)',
+                hours: '20:30',
+                ticket: '免費參觀',
+                transitMode: 'car',
+                transitTime: '30',
+                notes: '釜山私房制高點，360 度俯瞰廣安大橋與整座城市燈火。'
+              }
+            ]
+          },
+          {
+            dayIndex: 4,
+            items: [
+              {
+                id: 'd5_1',
+                type: 'standard',
+                colorTheme: 'stay',
+                category: '住宿',
+                name: '退房 Check-out (11:00 前)',
+                hours: '11:00',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '10',
+                notes: '整理行李準備辦理退房手續。'
+              },
+              {
+                id: 'd5_2',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '交通/航班',
+                name: '金海國際機場 寄放大件行李',
+                hours: '12:00 抵達',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '45',
+                notes: '先將大件行李送至金海機場行李寄存處寄放，輕鬆前往市區。'
+              },
+              {
+                id: 'd5_3',
+                type: 'standard',
+                colorTheme: 'food',
+                category: '美食',
+                name: '李在模 Pizza (西面店 / 先抽號碼牌)',
+                hours: '13:00',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '25',
+                notes: '抵達西面立刻先抽李在模披薩現場候位號碼牌！'
+              },
+              {
+                id: 'd5_4',
+                type: 'standard',
+                colorTheme: 'shop',
+                category: '購物',
+                name: '西面商圈逛街 & 美食巡禮',
+                hours: '13:30 - 19:30',
+                ticket: '',
+                transitMode: 'walk',
+                transitTime: '5',
+                subStores: [
+                  { name: '李在模 Pizza (西面店)', tag: '午餐起司控' },
+                  { name: '西面樂天百貨總店', tag: '免稅/精品' },
+                  { name: 'POSET 西面文具店', tag: '明信片/文創' },
+                  { name: '倫敦貝果博物館 (London Bagel)', tag: '排隊必買烘焙' }
+                ],
+                notes: '西面最後大採購！已依動線將樂天、POSET 與倫敦貝果排定。'
+              },
+              {
+                id: 'd5_5',
+                type: 'standard',
+                colorTheme: 'spot',
+                category: '交通/航班',
+                name: '抵達金海機場取行李 & 報到出關',
+                hours: '20:40 抵達',
+                ticket: '',
+                transitMode: 'car',
+                transitTime: '30',
+                notes: '取回寄放行李，辦理登機手續與退稅。'
+              },
+              {
+                id: 'd5_6',
+                type: 'flight',
+                flightNumber: 'LJ751 · 釜山 - 台北',
+                fromCode: 'PUS',
+                depTime: '22:00 (Int\'l)',
+                toCode: 'TPE',
+                arrTime: '23:40 (T1)',
+                duration: '2h 40m',
+                notes: '滿載戰利品平安飛回台灣！',
+                toLocation: '桃園國際機場'
+              }
+            ]
+          }
+        ];
+
+        const itineraryData = ref(defaultItinerary);
 
         const currentDayPlan = computed(() => {
           return itineraryData.value[selectedDayIndex.value] || { items: [] };
         });
 
-        // 匯率換算
+        // 匯率計算
         const calculatedTwd = computed(() => {
           return Math.round((calcKrw.value || 0) * 0.024).toLocaleString();
         });
@@ -703,23 +1200,22 @@
           return 'fa-solid fa-person-walking';
         };
 
-        const getCategoryStyle = (cat) => {
-          switch(cat) {
-            case '景點': return 'bg-amber-100 text-amber-800';
-            case '美食': return 'bg-orange-100 text-orange-800';
-            case '住宿': return 'bg-blue-100 text-blue-800';
-            case '購物': return 'bg-rose-100 text-rose-800';
-            default: return 'bg-gray-100 text-gray-800';
+        const getColorBadgeClass = (theme) => {
+          switch(theme) {
+            case 'food': return 'bg-orange-100 text-orange-800 border border-orange-200';
+            case 'shop': return 'bg-rose-100 text-rose-800 border border-rose-200';
+            case 'stay': return 'bg-slate-100 text-slate-700 border border-slate-200';
+            default: return 'bg-amber-100 text-amber-800 border border-amber-200';
           }
         };
 
         const getCategoryIcon = (cat) => {
           switch(cat) {
-            case '景點': return 'fa-solid fa-camera';
             case '美食': return 'fa-solid fa-utensils';
-            case '住宿': return 'fa-solid fa-bed';
             case '購物': return 'fa-solid fa-bag-shopping';
-            default: return 'fa-solid fa-location-dot';
+            case '住宿': return 'fa-solid fa-bed';
+            case '交通/航班': return 'fa-solid fa-plane';
+            default: return 'fa-solid fa-camera';
           }
         };
 
@@ -755,19 +1251,77 @@
           }
         };
 
-        // 行程彈窗
+        // 行程彈窗與 Google Maps 智慧分析區域
         const showScheduleModal = ref(false);
         const isEditingSchedule = ref(false);
-        const scheduleForm = ref({ id: '', category: '景點', name: '', hours: '', ticket: '', notes: '' });
+        const mapUrlInput = ref('');
+        const detectedAreaHint = ref('');
+
+        const scheduleForm = ref({
+          id: '',
+          colorTheme: 'spot',
+          category: '景點',
+          parentArea: '',
+          name: '',
+          hours: '',
+          ticket: '',
+          notes: '',
+          useBusanPass: false,
+          passType: 'Busan Pass 24hr'
+        });
+
+        // 智慧區域辨識演算法
+        const autoDetectAreaFromMap = () => {
+          const text = mapUrlInput.value.toLowerCase();
+          if (!text) return;
+
+          let matchedArea = '';
+          if (text.includes('seomyeon') || text.includes('西面') || text.includes('busanjin') || text.includes('釜山鎮')) {
+            matchedArea = '西面';
+          } else if (text.includes('gwangalli') || text.includes('廣安') || text.includes('suyeong') || text.includes('水營')) {
+            matchedArea = '廣安里';
+          } else if (text.includes('haeundae') || text.includes('海雲台') || text.includes('mipo') || text.includes('cheongsapo') || text.includes('青沙浦')) {
+            matchedArea = '海雲台';
+          } else if (text.includes('nampo') || text.includes('南浦') || text.includes('jagalchi') || text.includes('札嘎其') || text.includes('jung-gu')) {
+            matchedArea = '南浦洞/札嘎其';
+          } else if (text.includes('gamcheon') || text.includes('甘川') || text.includes('yeongdo') || text.includes('影島') || text.includes('huinnyeoul') || text.includes('白淺灘')) {
+            matchedArea = '甘川洞/影島';
+          }
+
+          if (matchedArea) {
+            scheduleForm.value.parentArea = matchedArea;
+            detectedAreaHint.value = `🎯 系統已自動判定此店家位於「${matchedArea}」商圈！`;
+            if (!scheduleForm.value.name) {
+              scheduleForm.value.name = mapUrlInput.value.split('/')[0];
+            }
+          } else {
+            detectedAreaHint.value = '💡 已讀取，可於下方手動選取所屬母區域。';
+          }
+        };
 
         const openAddScheduleModal = () => {
           isEditingSchedule.value = false;
-          scheduleForm.value = { id: Date.now().toString(), category: '景點', name: '', hours: '', ticket: '', notes: '' };
+          mapUrlInput.value = '';
+          detectedAreaHint.value = '';
+          scheduleForm.value = {
+            id: Date.now().toString(),
+            colorTheme: 'spot',
+            category: '景點',
+            parentArea: '',
+            name: '',
+            hours: '',
+            ticket: '',
+            notes: '',
+            useBusanPass: false,
+            passType: 'Busan Pass'
+          };
           showScheduleModal.value = true;
         };
 
         const editScheduleItem = (item) => {
           isEditingSchedule.value = true;
+          mapUrlInput.value = '';
+          detectedAreaHint.value = '';
           scheduleForm.value = { ...item };
           showScheduleModal.value = true;
         };
@@ -775,6 +1329,22 @@
         const saveScheduleItem = () => {
           if (!scheduleForm.value.name) return;
           const items = itineraryData.value[selectedDayIndex.value].items;
+
+          // 若有指定母區域 (如西面/廣安里)，嘗試尋找母行程並將店家加入其子清單中
+          if (scheduleForm.value.parentArea) {
+            const parentItem = items.find(i => i.name.includes(scheduleForm.value.parentArea));
+            if (parentItem) {
+              if (!parentItem.subStores) parentItem.subStores = [];
+              // 避免重複加入
+              if (!parentItem.subStores.some(s => s.name === scheduleForm.value.name)) {
+                parentItem.subStores.push({
+                  name: scheduleForm.value.name,
+                  tag: scheduleForm.value.category
+                });
+              }
+            }
+          }
+
           if (isEditingSchedule.value) {
             const idx = items.findIndex(i => i.id === scheduleForm.value.id);
             if (idx !== -1) items[idx] = { ...scheduleForm.value };
@@ -794,13 +1364,14 @@
           }
         };
 
-        // 購物清單功能（含商店分類）
+        // 購物清單
         const shopCategories = ['全部', '大創', 'Olive Young', '超商/超市', '免稅店', '其他'];
         const activeShopCategory = ref('全部');
 
         const shoppingList = ref([
-          { id: '1', store: '大創', name: '超人氣積雪草微針精華', notes: '大創熱賣款', image: '' },
-          { id: '2', store: 'Olive Young', name: 'Torriden 保濕面膜', notes: '特價必囤', image: '' }
+          { id: '1', store: '大創', name: 'VT 積雪草微針精華', notes: '100 / 300 號熱門款', image: '' },
+          { id: '2', store: 'Olive Young', name: 'Torriden 微分子玻尿酸面膜', notes: '特價必囤', image: '' },
+          { id: '3', store: '其他', name: 'POSET 西面質感明信片', notes: '西面商圈文創小物', image: '' }
         ]);
 
         const filteredShoppingList = computed(() => {
@@ -839,14 +1410,14 @@
           saveToLocalStorage();
         };
 
-        // 花費記帳 & 三人分帳演算法
+        // 三人分帳 (yoyo / lucy / 飛)
         const expenseList = ref([
           {
             id: '1',
             category: '飲食',
-            name: '海雲台烤盲鰻晚餐',
+            name: '烤肉的男子 晚餐',
             date: '2026-08-24',
-            amount: 60000,
+            amount: 72000,
             payMethod: '信用卡',
             payer: 'yoyo',
             sharedWith: ['yoyo', 'lucy', '飛']
@@ -879,7 +1450,6 @@
           return expenseList.value.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         });
 
-        // 統計每個人付了多少、該平攤多少
         const personStats = computed(() => {
           const stats = {
             'yoyo': { paid: 0, owes: 0 },
@@ -902,15 +1472,14 @@
           return stats;
         });
 
-        // 最優結算演算法：誰轉給誰多少錢
         const settlementDebts = computed(() => {
           const net = {};
           members.value.forEach(m => {
             net[m] = (personStats.value[m]?.paid || 0) - (personStats.value[m]?.owes || 0);
           });
 
-          const debtors = [];  // 應付款人
-          const creditors = []; // 應收款人
+          const debtors = [];
+          const creditors = [];
 
           for (const [m, bal] of Object.entries(net)) {
             if (bal < -1) debtors.push({ name: m, amount: -bal });
@@ -968,17 +1537,17 @@
           saveToLocalStorage();
         };
 
-        // 本地儲存
+        // 本地儲存版本管理
         const saveToLocalStorage = () => {
-          localStorage.setItem('busan_itinerary_v2', JSON.stringify(itineraryData.value));
-          localStorage.setItem('busan_shopping_v2', JSON.stringify(shoppingList.value));
-          localStorage.setItem('busan_expenses_v2', JSON.stringify(expenseList.value));
+          localStorage.setItem('busan_itinerary_v3', JSON.stringify(itineraryData.value));
+          localStorage.setItem('busan_shopping_v3', JSON.stringify(shoppingList.value));
+          localStorage.setItem('busan_expenses_v3', JSON.stringify(expenseList.value));
         };
 
         const loadFromLocalStorage = () => {
-          const savedItinerary = localStorage.getItem('busan_itinerary_v2');
-          const savedShopping = localStorage.getItem('busan_shopping_v2');
-          const savedExpenses = localStorage.getItem('busan_expenses_v2');
+          const savedItinerary = localStorage.getItem('busan_itinerary_v3');
+          const savedShopping = localStorage.getItem('busan_shopping_v3');
+          const savedExpenses = localStorage.getItem('busan_expenses_v3');
           if (savedItinerary) itineraryData.value = JSON.parse(savedItinerary);
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
           if (savedExpenses) expenseList.value = JSON.parse(savedExpenses);
@@ -999,13 +1568,17 @@
           calculatedTwd,
           openGoogleMaps,
           getTransitIcon,
-          getCategoryStyle,
+          getColorBadgeClass,
           getCategoryIcon,
           getExpenseCategoryIcon,
           scheduleContainer,
           showScheduleModal,
           isEditingSchedule,
           scheduleForm,
+          colorOptions,
+          mapUrlInput,
+          detectedAreaHint,
+          autoDetectAreaFromMap,
           openAddScheduleModal,
           editScheduleItem,
           saveScheduleItem,
@@ -1033,6 +1606,10 @@
           deleteExpense
         };
       }
+    }).mount('#app');
+  </script>
+</body>
+</html>
     }).mount('#app');
   </script>
 </body>
