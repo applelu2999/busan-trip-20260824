@@ -109,7 +109,7 @@
         </div>
 
         <!-- 當日天氣資訊 -->
-        <div class="bg-nordic-card rounded-2xl p-3.5 mb-5 border border-nordic-border flex items-center justify-between shadow-xs">
+        <div class="bg-nordic-card rounded-2xl p-3.5 mb-4 border border-nordic-border flex items-center justify-between shadow-xs">
           <div class="flex items-center space-x-3">
             <i class="fa-solid fa-cloud-sun text-amber-500 text-2xl"></i>
             <div>
@@ -120,6 +120,17 @@
           <div class="text-right text-xs text-nordic-sub">
             體感 <span class="font-bold text-nordic-text">27°C</span>
           </div>
+        </div>
+
+        <!-- 快速批次連動入口 -->
+        <div class="mb-4 bg-white/70 backdrop-blur-xs rounded-2xl p-3 border border-nordic-border flex items-center justify-between shadow-xs">
+          <div class="flex items-center space-x-2 text-xs">
+            <i class="fa-solid fa-map-location-dot text-nordic-point text-base"></i>
+            <span class="text-nordic-text font-bold">Google Maps 清單/店家快速連動</span>
+          </div>
+          <button @click="openAddScheduleModal(true)" class="bg-nordic-text text-white text-[11px] font-bold px-3 py-1.5 rounded-xl hover:bg-black transition-all">
+            + 匯入/新增
+          </button>
         </div>
 
         <!-- 行程清單 (可拖曳排序) -->
@@ -160,7 +171,7 @@
               </div>
               <div class="flex justify-between items-center pt-2 text-xs text-white/70">
                 <span>{{ item.notes }}</span>
-                <button @click="openGoogleMaps(item.toLocation || '金海國際機場')" class="text-white hover:text-amber-300 font-medium">
+                <button @click="openNavigation(item)" class="text-white hover:text-amber-300 font-medium">
                   導航 <i class="fa-solid fa-diamond-turn-right ml-1"></i>
                 </button>
               </div>
@@ -170,7 +181,7 @@
             <div v-else class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs hover:border-nordic-sub/50 transition-all flex flex-col justify-between relative">
               <div class="flex items-start justify-between">
                 <div class="flex items-start space-x-2.5">
-                  <!-- 自訂方塊顏色 (行程 vs 美食 vs 其他) -->
+                  <!-- 自訂方塊顏色 (行程 vs 美食 vs 購物 vs 住宿) -->
                   <span :class="['w-7 h-7 rounded-xl flex items-center justify-center text-xs mt-0.5 font-bold shrink-0', getColorBadgeClass(item.colorTheme)]">
                     <i :class="getCategoryIcon(item.category)"></i>
                   </span>
@@ -207,7 +218,7 @@
                     <span class="font-medium text-nordic-text truncate">{{ store.name }}</span>
                     <span v-if="store.tag" class="text-[9px] bg-nordic-bg px-1 rounded text-nordic-sub">{{ store.tag }}</span>
                   </div>
-                  <button @click="openGoogleMaps(store.name)" class="text-nordic-sub hover:text-nordic-point text-[11px] shrink-0">
+                  <button @click="openGoogleMaps(store.customUrl || store.name)" class="text-nordic-sub hover:text-nordic-point text-[11px] shrink-0">
                     <i class="fa-solid fa-location-arrow"></i>
                   </button>
                 </div>
@@ -221,7 +232,7 @@
               <!-- 導航與快速操作 -->
               <div class="mt-3.5 pt-2.5 border-t border-nordic-border flex justify-between items-center text-xs">
                 <span class="text-nordic-sub text-[11px]"><i class="fa-solid fa-bars mr-1.5 cursor-grab"></i>拖曳排序</span>
-                <button @click="openGoogleMaps(item.name)" class="font-medium text-nordic-text flex items-center space-x-1 hover:text-nordic-point">
+                <button @click="openNavigation(item)" class="font-medium text-nordic-text flex items-center space-x-1 hover:text-nordic-point">
                   <span>Google 導航</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </button>
@@ -232,14 +243,42 @@
         </div>
 
         <!-- 浮動新增按鈕 (FAB) -->
-        <button @click="openAddScheduleModal" class="fixed bottom-6 right-6 w-13 h-13 bg-nordic-text text-white rounded-full shadow-xl flex items-center justify-center text-xl hover:bg-black transition-all transform hover:scale-105 active:scale-95 z-20">
+        <button @click="openAddScheduleModal(false)" class="fixed bottom-6 right-6 w-13 h-13 bg-nordic-text text-white rounded-full shadow-xl flex items-center justify-center text-xl hover:bg-black transition-all transform hover:scale-105 active:scale-95 z-20">
           <i class="fa-solid fa-plus"></i>
         </button>
       </section>
 
-      <!-- ================= 2. 資訊頁 (匯率、入境規定、釜山 Pass、航班、住宿) ================= -->
+      <!-- ================= 2. 資訊頁 (使用說明、匯率、入境規定、釜山 Pass、航班、住宿) ================= -->
       <section v-if="currentTab === 'info'" class="space-y-4">
         
+        <!-- 網站使用說明指南 -->
+        <div class="bg-gradient-to-br from-nordic-accent to-slate-800 text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
+          <div class="flex items-center space-x-2 mb-2.5">
+            <span class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-xs text-amber-300">
+              <i class="fa-solid fa-book-open"></i>
+            </span>
+            <h3 class="font-bold text-sm text-white">App 操作使用指南</h3>
+          </div>
+          <div class="space-y-2 text-xs text-white/80 leading-relaxed">
+            <div class="flex items-start space-x-2">
+              <span class="text-amber-300 font-bold">1.</span>
+              <span><strong>行程拖曳排序</strong>：在「每日行程表」按住卡片左下角的圖示，即可自由上下拖拉變更走訪順序。</span>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="text-amber-300 font-bold">2.</span>
+              <span><strong>Google Maps 清單連動</strong>：在行程頁點擊上方「+ 匯入/新增」，可直接貼上 Google Maps 清單或連結，系統會自動判定所屬商圈分層（如西面、海雲台等）。</span>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="text-amber-300 font-bold">3.</span>
+              <span><strong>釜山 PASS 標註</strong>：新增行程時可勾選「使用釜山 PASS」，一目了然哪些景點已使用通票或需開卡。</span>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="text-amber-300 font-bold">4.</span>
+              <span><strong>三人分帳結算</strong>：在「花費」頁面記錄每筆由誰先付、誰要平攤，最下方會自動計算最精簡的轉帳方案（yoyo / lucy / 飛）。</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 匯率即時換算 -->
         <div class="bg-nordic-card rounded-2xl p-4 border border-nordic-border shadow-xs">
           <div class="flex items-center space-x-2 mb-3">
@@ -381,7 +420,7 @@
 
       </section>
 
-      <!-- ================= 3. 購物清單 (商店分類標籤) ================= -->
+      <!-- ================= 3. 購物清單 ================= -->
       <section v-if="currentTab === 'shopping'" class="space-y-4">
         
         <div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-1">
@@ -417,7 +456,7 @@
         </button>
       </section>
 
-      <!-- ================= 4. 花費記帳 & 三人分帳 (yoyo / lucy / 飛) ================= -->
+      <!-- ================= 4. 花費記帳 & 三人分帳 ================= -->
       <section v-if="currentTab === 'expenses'" class="space-y-4">
         
         <div class="bg-nordic-text text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
@@ -500,15 +539,30 @@
 
     </main>
 
-    <!-- ================= 彈出視窗：新增/編輯行程 ================= -->
+    <!-- ================= 彈出視窗：新增/編輯行程 (支援 Google Maps 連動與批次匯入) ================= -->
     <div v-if="showScheduleModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end justify-center z-50 p-0 sm:p-4">
       <div class="bg-nordic-card w-full max-w-md rounded-t-[28px] sm:rounded-[28px] p-5 max-h-[90vh] overflow-y-auto space-y-3.5 animate-slide-up">
         <div class="flex justify-between items-center pb-2 border-b border-nordic-border">
-          <h3 class="font-bold text-base text-nordic-text">{{ isEditingSchedule ? '編輯行程' : '新增行程' }}</h3>
+          <h3 class="font-bold text-base text-nordic-text">{{ isEditingSchedule ? '編輯行程' : '新增行程 / Google Maps 連動' }}</h3>
           <button @click="showScheduleModal = false" class="text-nordic-sub"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
-        <!-- 方塊顏色主題選擇 (行程 vs 美食 vs 購物 vs 住宿) -->
+        <!-- Google Maps 清單批次匯入工具 -->
+        <div class="bg-nordic-bg p-3.5 rounded-2xl border border-nordic-border space-y-2">
+          <label class="text-xs font-bold text-nordic-text flex items-center justify-between">
+            <span><i class="fa-brands fa-google text-blue-500 mr-1.5"></i>Google Maps 清單 / 網址批次連動</span>
+          </label>
+          <textarea v-model="batchInput" rows="2" placeholder="貼上 Google Maps 清單文字、連結或多個店家名稱 (一行一個)..." class="w-full bg-white border border-nordic-border rounded-xl p-2 text-xs focus:outline-none"></textarea>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] text-nordic-sub">支援自動判定西面/海雲台/廣安里等區域</span>
+            <button @click="batchImportMapList" type="button" class="bg-nordic-text text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 hover:bg-black">
+              自動分析並加入
+            </button>
+          </div>
+          <p v-if="batchMessage" class="text-[10px] text-emerald-600 font-semibold">{{ batchMessage }}</p>
+        </div>
+
+        <!-- 方塊顏色主題選擇 -->
         <div>
           <label class="text-xs font-bold text-nordic-sub block mb-1">標籤與方塊顏色風格</label>
           <div class="grid grid-cols-4 gap-2">
@@ -531,20 +585,6 @@
           </div>
         </div>
 
-        <!-- Google Maps 連結智慧解析區域 -->
-        <div class="bg-nordic-bg p-3 rounded-2xl border border-nordic-border space-y-1.5">
-          <label class="text-xs font-bold text-nordic-text flex items-center justify-between">
-            <span><i class="fa-brands fa-google text-blue-500 mr-1"></i>貼上 Google Maps 網址 / 店名自動識別</span>
-          </label>
-          <div class="flex space-x-1.5">
-            <input v-model="mapUrlInput" type="text" placeholder="貼上店家名稱或 Google Maps 連結..." class="flex-1 bg-white border border-nordic-border rounded-xl px-3 py-2 text-xs focus:outline-none" />
-            <button @click="autoDetectAreaFromMap" type="button" class="bg-nordic-text text-white px-3 py-2 rounded-xl text-xs font-bold shrink-0">
-              辨識區域
-            </button>
-          </div>
-          <p v-if="detectedAreaHint" class="text-[10px] text-nordic-point font-semibold">{{ detectedAreaHint }}</p>
-        </div>
-
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs text-nordic-sub">分類</label>
@@ -558,7 +598,7 @@
             </select>
           </div>
           <div>
-            <label class="text-xs text-nordic-sub">所屬區域 / 母行程</label>
+            <label class="text-xs text-nordic-sub">所屬母區域</label>
             <select v-model="scheduleForm.parentArea" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs">
               <option value="">獨立大行程</option>
               <option value="廣安里">廣安里</option>
@@ -573,6 +613,11 @@
         <div>
           <label class="text-xs text-nordic-sub">行程 / 店家名稱</label>
           <input v-model="scheduleForm.name" type="text" placeholder="例：西面 poset 文具店" class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
+        </div>
+
+        <div>
+          <label class="text-xs text-nordic-sub">專屬 Google Maps 導航連結 (選填)</label>
+          <input v-model="scheduleForm.customUrl" type="text" placeholder="https://maps.app.goo.gl/..." class="w-full mt-1 bg-nordic-bg border border-nordic-border rounded-xl p-2.5 text-xs" />
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -730,7 +775,6 @@
           { weekDay: 'FRI', dayNum: '8/28' }
         ]);
 
-        // 色彩風格選單
         const colorOptions = [
           { id: 'spot', label: '景點 (琥珀)', bgClass: 'bg-amber-50 text-amber-800', activeClass: 'bg-amber-100 text-amber-900 border-amber-400' },
           { id: 'food', label: '美食 (珊瑚橘)', bgClass: 'bg-orange-50 text-orange-800', activeClass: 'bg-orange-100 text-orange-900 border-orange-400' },
@@ -738,7 +782,7 @@
           { id: 'stay', label: '住宿/其他', bgClass: 'bg-slate-100 text-slate-700', activeClass: 'bg-slate-200 text-slate-900 border-slate-400' }
         ];
 
-        // 完整五天行程
+        // 預設行程資料 (已整合遊艇專屬連結)
         const defaultItinerary = [
           {
             dayIndex: 0,
@@ -884,11 +928,12 @@
                 type: 'standard',
                 colorTheme: 'spot',
                 category: '景點',
-                name: '海雲台/廣安里 遊艇夜景體驗',
+                name: '海雲台/廣安里 遊艇夜景體驗 (The Yacht)',
                 hours: '20:30 (需提早到場)',
                 ticket: '已預約完成',
                 useBusanPass: true,
                 passType: 'Busan Pass Big 3 (使用 #2)',
+                customUrl: 'https://maps.app.goo.gl/FUsFVJ2YiMsax8LaA',
                 transitMode: 'car',
                 transitTime: '35',
                 notes: '已預約 20:30 班次，出海近距離看廣安大橋燈光秀與煙火。'
@@ -1189,9 +1234,22 @@
           return Math.round((calcKrw.value || 0) * 0.024).toLocaleString();
         });
 
+        // 導航跳轉 (優先開啟專屬自訂 URL，否則搜尋名稱)
+        const openNavigation = (item) => {
+          if (item.customUrl) {
+            window.open(item.customUrl, '_blank');
+          } else {
+            openGoogleMaps(item.toLocation || item.name);
+          }
+        };
+
         const openGoogleMaps = (query) => {
-          const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-          window.open(url, '_blank');
+          if (query.startsWith('http')) {
+            window.open(query, '_blank');
+          } else {
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            window.open(url, '_blank');
+          }
         };
 
         const getTransitIcon = (mode) => {
@@ -1251,11 +1309,11 @@
           }
         };
 
-        // 行程彈窗與 Google Maps 智慧分析區域
+        // 行程彈窗與批次連動分析
         const showScheduleModal = ref(false);
         const isEditingSchedule = ref(false);
-        const mapUrlInput = ref('');
-        const detectedAreaHint = ref('');
+        const batchInput = ref('');
+        const batchMessage = ref('');
 
         const scheduleForm = ref({
           id: '',
@@ -1263,6 +1321,7 @@
           category: '景點',
           parentArea: '',
           name: '',
+          customUrl: '',
           hours: '',
           ticket: '',
           notes: '',
@@ -1270,45 +1329,99 @@
           passType: 'Busan Pass 24hr'
         });
 
-        // 智慧區域辨識演算法
-        const autoDetectAreaFromMap = () => {
-          const text = mapUrlInput.value.toLowerCase();
-          if (!text) return;
+        // 智慧區域與店家特徵判定
+        const analyzeStoreInfo = (rawText) => {
+          const text = rawText.toLowerCase();
+          let area = '';
+          let theme = 'spot';
+          let cat = '景點';
 
-          let matchedArea = '';
-          if (text.includes('seomyeon') || text.includes('西面') || text.includes('busanjin') || text.includes('釜山鎮')) {
-            matchedArea = '西面';
-          } else if (text.includes('gwangalli') || text.includes('廣安') || text.includes('suyeong') || text.includes('水營')) {
-            matchedArea = '廣安里';
-          } else if (text.includes('haeundae') || text.includes('海雲台') || text.includes('mipo') || text.includes('cheongsapo') || text.includes('青沙浦')) {
-            matchedArea = '海雲台';
-          } else if (text.includes('nampo') || text.includes('南浦') || text.includes('jagalchi') || text.includes('札嘎其') || text.includes('jung-gu')) {
-            matchedArea = '南浦洞/札嘎其';
-          } else if (text.includes('gamcheon') || text.includes('甘川') || text.includes('yeongdo') || text.includes('影島') || text.includes('huinnyeoul') || text.includes('白淺灘')) {
-            matchedArea = '甘川洞/影島';
+          if (text.includes('seomyeon') || text.includes('西面') || text.includes('busanjin') || text.includes('釜山鎮')) area = '西面';
+          else if (text.includes('gwangalli') || text.includes('廣安') || text.includes('suyeong') || text.includes('水營')) area = '廣安里';
+          else if (text.includes('haeundae') || text.includes('海雲台') || text.includes('mipo') || text.includes('cheongsapo') || text.includes('青沙浦')) area = '海雲台';
+          else if (text.includes('nampo') || text.includes('南浦') || text.includes('jagalchi') || text.includes('札嘎其') || text.includes('jung-gu')) area = '南浦洞/札嘎其';
+          else if (text.includes('gamcheon') || text.includes('甘川') || text.includes('yeongdo') || text.includes('影島') || text.includes('huinnyeoul') || text.includes('白淺灘')) area = '甘川洞/影島';
+
+          if (text.includes('咖啡') || text.includes('cafe') || text.includes('美食') || text.includes('餐廳') || text.includes('烤肉') || text.includes('湯飯') || text.includes('pizza') || text.includes('麵')) {
+            theme = 'food';
+            cat = '美食';
+          } else if (text.includes('olive') || text.includes('百貨') || text.includes('daiso') || text.includes('大創') || text.includes('文具') || text.includes('market') || text.includes('超市') || text.includes('街')) {
+            theme = 'shop';
+            cat = '購物';
           }
 
-          if (matchedArea) {
-            scheduleForm.value.parentArea = matchedArea;
-            detectedAreaHint.value = `🎯 系統已自動判定此店家位於「${matchedArea}」商圈！`;
-            if (!scheduleForm.value.name) {
-              scheduleForm.value.name = mapUrlInput.value.split('/')[0];
-            }
-          } else {
-            detectedAreaHint.value = '💡 已讀取，可於下方手動選取所屬母區域。';
-          }
+          return { area, theme, cat };
         };
 
-        const openAddScheduleModal = () => {
+        // 批次匯入 Google Maps 清單 / 多筆店家
+        const batchImportMapList = () => {
+          if (!batchInput.value.trim()) return;
+          const lines = batchInput.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          let count = 0;
+
+          lines.forEach(line => {
+            const { area, theme, cat } = analyzeStoreInfo(line);
+            let name = line;
+            let customUrl = '';
+
+            if (line.startsWith('http')) {
+              customUrl = line;
+              name = 'Google Maps 地點 (' + (area || '新地點') + ')';
+            }
+
+            const dayItems = itineraryData.value[selectedDayIndex.value].items;
+            
+            // 若該商圈已有集合行程，歸納至子清單中
+            if (area) {
+              const parentItem = dayItems.find(i => i.name.includes(area));
+              if (parentItem) {
+                if (!parentItem.subStores) parentItem.subStores = [];
+                if (!parentItem.subStores.some(s => s.name === name)) {
+                  parentItem.subStores.push({ name, tag: cat, customUrl });
+                  count++;
+                  return;
+                }
+              }
+            }
+
+            // 否則新增獨立卡片
+            dayItems.push({
+              id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
+              type: 'standard',
+              colorTheme: theme,
+              category: cat,
+              parentArea: area,
+              name: name,
+              customUrl: customUrl,
+              hours: '',
+              ticket: '',
+              notes: '透過 Google Maps 清單連動匯入',
+              transitMode: 'walk',
+              transitTime: '15'
+            });
+            count++;
+          });
+
+          batchMessage.value = `🎉 成功智慧分析並連動加入 ${count} 個地點/小店！`;
+          batchInput.value = '';
+          saveToLocalStorage();
+          setTimeout(() => {
+            showScheduleModal.value = false;
+            batchMessage.value = '';
+          }, 900);
+        };
+
+        const openAddScheduleModal = (isBatch = false) => {
           isEditingSchedule.value = false;
-          mapUrlInput.value = '';
-          detectedAreaHint.value = '';
+          batchInput.value = '';
+          batchMessage.value = '';
           scheduleForm.value = {
             id: Date.now().toString(),
             colorTheme: 'spot',
             category: '景點',
             parentArea: '',
             name: '',
+            customUrl: '',
             hours: '',
             ticket: '',
             notes: '',
@@ -1320,8 +1433,8 @@
 
         const editScheduleItem = (item) => {
           isEditingSchedule.value = true;
-          mapUrlInput.value = '';
-          detectedAreaHint.value = '';
+          batchInput.value = '';
+          batchMessage.value = '';
           scheduleForm.value = { ...item };
           showScheduleModal.value = true;
         };
@@ -1330,16 +1443,15 @@
           if (!scheduleForm.value.name) return;
           const items = itineraryData.value[selectedDayIndex.value].items;
 
-          // 若有指定母區域 (如西面/廣安里)，嘗試尋找母行程並將店家加入其子清單中
           if (scheduleForm.value.parentArea) {
             const parentItem = items.find(i => i.name.includes(scheduleForm.value.parentArea));
             if (parentItem) {
               if (!parentItem.subStores) parentItem.subStores = [];
-              // 避免重複加入
               if (!parentItem.subStores.some(s => s.name === scheduleForm.value.name)) {
                 parentItem.subStores.push({
                   name: scheduleForm.value.name,
-                  tag: scheduleForm.value.category
+                  tag: scheduleForm.value.category,
+                  customUrl: scheduleForm.value.customUrl
                 });
               }
             }
@@ -1537,17 +1649,17 @@
           saveToLocalStorage();
         };
 
-        // 本地儲存版本管理
+        // 本地快照儲存 (v4 版本)
         const saveToLocalStorage = () => {
-          localStorage.setItem('busan_itinerary_v3', JSON.stringify(itineraryData.value));
-          localStorage.setItem('busan_shopping_v3', JSON.stringify(shoppingList.value));
-          localStorage.setItem('busan_expenses_v3', JSON.stringify(expenseList.value));
+          localStorage.setItem('busan_itinerary_v4', JSON.stringify(itineraryData.value));
+          localStorage.setItem('busan_shopping_v4', JSON.stringify(shoppingList.value));
+          localStorage.setItem('busan_expenses_v4', JSON.stringify(expenseList.value));
         };
 
         const loadFromLocalStorage = () => {
-          const savedItinerary = localStorage.getItem('busan_itinerary_v3');
-          const savedShopping = localStorage.getItem('busan_shopping_v3');
-          const savedExpenses = localStorage.getItem('busan_expenses_v3');
+          const savedItinerary = localStorage.getItem('busan_itinerary_v4');
+          const savedShopping = localStorage.getItem('busan_shopping_v4');
+          const savedExpenses = localStorage.getItem('busan_expenses_v4');
           if (savedItinerary) itineraryData.value = JSON.parse(savedItinerary);
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
           if (savedExpenses) expenseList.value = JSON.parse(savedExpenses);
@@ -1566,6 +1678,7 @@
           currentDayPlan,
           calcKrw,
           calculatedTwd,
+          openNavigation,
           openGoogleMaps,
           getTransitIcon,
           getColorBadgeClass,
@@ -1576,9 +1689,9 @@
           isEditingSchedule,
           scheduleForm,
           colorOptions,
-          mapUrlInput,
-          detectedAreaHint,
-          autoDetectAreaFromMap,
+          batchInput,
+          batchMessage,
+          batchImportMapList,
           openAddScheduleModal,
           editScheduleItem,
           saveScheduleItem,
@@ -1606,10 +1719,6 @@
           deleteExpense
         };
       }
-    }).mount('#app');
-  </script>
-</body>
-</html>
     }).mount('#app');
   </script>
 </body>
